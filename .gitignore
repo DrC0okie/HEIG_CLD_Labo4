@@ -25,4 +25,5 @@ replay_pid*
 
 GrR_GoogleAppEngine/.idea/
 
-GrR_GoogleAppEngine/target/LabGAE-1.0-SNAPSHOT/
+
+GrR_GoogleAppEngine/target/
