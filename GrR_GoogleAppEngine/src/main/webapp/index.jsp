@@ -78,13 +78,15 @@
 
 <h2>Add a new entity:</h2>
 <form action="/datastorewrite" method="get">
+    <label for="_kind">Kind:</label>
+    <input type="text" id="_kind" name="_kind" required>
+    <br>
     <label for="Key">Key:</label>
-    <input type="text" id="Key" name="Key" required>
+    <input type="text" id="Key" name="_key" required>
     <br>
     <label for="Value">Value:</label>
-    <input type="text" id="Value" name="Value" required>
+    <input type="text" id="Value" name="_value" required>
     <br>
-    <input type="hidden" name="_kind" value="book">
     <input type="submit" value="Add Entity">
 </form>
 </body>
