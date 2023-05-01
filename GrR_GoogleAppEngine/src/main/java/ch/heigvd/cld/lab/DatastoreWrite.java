@@ -3,7 +3,10 @@ package ch.heigvd.cld.lab;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +20,7 @@ public class DatastoreWrite extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+            throws ServletException, IOException {
 
         resp.setContentType("text/plain");
         PrintWriter pw = resp.getWriter();
@@ -53,6 +56,18 @@ public class DatastoreWrite extends HttpServlet {
         }
 
         datastore.put(entity);
-        pw.println("Entity saved: " + entity);
+        // Return the added entity data as a JSON object
+        resp.setContentType("application/json");
+        Gson gson = new Gson();
+        JsonObject responseObject = new JsonObject();
+        responseObject.addProperty("kind", entity.getKind());
+        responseObject.addProperty("key", entity.getKey().getName());
+        JsonObject properties = new JsonObject();
+        for (String property : entity.getProperties().keySet()) {
+            properties.addProperty(property, String.valueOf(entity.getProperty(property)));
+        }
+        responseObject.add("properties", properties);
+        PrintWriter out = resp.getWriter();
+        out.print(gson.toJson(responseObject));
     }
 }
