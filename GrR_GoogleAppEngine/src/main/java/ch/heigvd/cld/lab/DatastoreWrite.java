@@ -6,46 +6,43 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Enumeration;
 
+/**
+ * Writes a key-value pair in the Google datastore based on the GET request parameters
+ * Returns the written pair as a JSON object as a response
+ *
+ * @author Anthony David
+ */
 @WebServlet(name = "DatastoreWrite", value = "/datastorewrite")
 public class DatastoreWrite extends HttpServlet {
 
+    private static final DatastoreService DATASTORE = DatastoreServiceFactory.getDatastoreService();
+    private static final Gson GSON = new Gson();
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        resp.setContentType("text/plain");
-        PrintWriter pw = resp.getWriter();
-
+        // Get the _kind and _key parameters from the request
         String kind = req.getParameter("_kind");
         String key = req.getParameter("_key");
 
+        // Check if _kind parameter is present
         if (kind == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            pw.println("Missing _kind parameter.");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing _kind parameter.");
             return;
         }
 
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        // Create an Entity instance for the given kind and key
+        Entity entity = key == null ? new Entity(kind) : new Entity(kind, key);
 
-        Entity entity;
-
-        if (key != null) {
-            entity = new Entity(kind, key);
-        } else {
-            entity = new Entity(kind);
-        }
-
+        // Iterate over all the parameters in the request, and add them to the entity
         Enumeration<String> parameterNames = req.getParameterNames();
-
         while (parameterNames.hasMoreElements()) {
             String paramName = parameterNames.nextElement();
 
@@ -55,19 +52,16 @@ public class DatastoreWrite extends HttpServlet {
             }
         }
 
-        datastore.put(entity);
-        // Return the added entity data as a JSON object
+        // Add the entity to the Datastore
+        DATASTORE.put(entity);
+
+        // Return the added entity data as a JSON object to be displayed in the page
+        JsonObject response = new JsonObject();
+        response.addProperty("kind", entity.getKind());
+        response.addProperty("key", entity.getKey().getName());
+        response.add("properties", GSON.toJsonTree(entity.getProperties()));
+
         resp.setContentType("application/json");
-        Gson gson = new Gson();
-        JsonObject responseObject = new JsonObject();
-        responseObject.addProperty("kind", entity.getKind());
-        responseObject.addProperty("key", entity.getKey().getName());
-        JsonObject properties = new JsonObject();
-        for (String property : entity.getProperties().keySet()) {
-            properties.addProperty(property, String.valueOf(entity.getProperty(property)));
-        }
-        responseObject.add("properties", properties);
-        PrintWriter out = resp.getWriter();
-        out.print(gson.toJson(responseObject));
+        resp.getWriter().println(GSON.toJson(response));
     }
 }

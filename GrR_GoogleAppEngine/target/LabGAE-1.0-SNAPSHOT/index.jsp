@@ -2,26 +2,25 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <link href='//fonts.googleapis.com/css?family=Marmelad' rel='stylesheet'
-          type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Marmelad' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="resources/css/styles.css">
+    <link rel="shortcut icon" href="resources/img/cloud.ico" type="image/x-icon">
+    <link rel="icon" href="resources/img/cloud.ico" type="image/x-icon">
+
     <title>HEIG-VD - Cloud computing</title>
 </head>
 <body>
-    <header class="header">
-        <a class="absolute left-0 top-0 z-40 no-desktop:w-[75px] transition-all is-search:opacity-0 is-search:invisible is-search:lg:opacity-100 is-search:lg:visible" href="https://heig-vd.ch">
+    <header>
+        <a href="https://heig-vd.ch" class="header-logo">
             <img src="https://heig-vd.ch/images/heig-vd-logo.gif" alt="Logo HEIG VD" width="112" height="112">
         </a>
+        <div>
+            Cloud computing - Labo 4
+        </div>
     </header>
     <div>
         <h1>Welcome to our web application!</h1>
     </div>
-    <p>Available features:</p>
-    <ul>
-        <li><a href="${pageContext.request.contextPath}/datastorewrite">Datastore Write
-            Servlet</a></li>
-        <!-- Add more links to other servlets or pages here. -->
-    </ul>
     <h2>Add a new entity:</h2>
     <form id="addEntityForm" method="get">
         <label for="_kind">Kind:</label>
@@ -36,8 +35,7 @@
         <input type="submit" value="Add Entity" >
         <br>
     </form>
-    <div id="lastAddedEntity" style="display: none; background-color: rgba(0, 0,
-    0, 0.5); padding: 20px; border-radius: 10px; margin-top: 20px; width: 300px;"></div>
+    <div id="lastAddedEntity" class="last-added-entity"></div>
 
     <footer>
         <p class="left">Authors: Anthony David - Timothée Van Hove</p>
