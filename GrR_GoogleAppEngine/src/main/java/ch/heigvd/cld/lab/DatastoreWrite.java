@@ -34,7 +34,7 @@ public class DatastoreWrite extends HttpServlet {
 
         // Check if _kind parameter is present
         if (kind == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing _kind parameter.");
+            resp.sendError(HttpServletResponse.SC_OK, "Missing _kind parameter.");
             return;
         }
 
