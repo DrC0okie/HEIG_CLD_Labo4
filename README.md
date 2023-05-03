@@ -14,15 +14,19 @@ No deliverables in this step.
 
 ## Step 1 : Deployement of a simple web application
 
+HelloAppEngine.java:  Java Servlet, which is a Java class that extends the functionality of a server. The code receives HTTP requests from clients, processes them, and returns an HTTP response. The Servlet is responsible for handling the logic of our application by  listenning HTTP GET requests at the "/hello" endpoint and sends a request to the "/hello" endpoint. When the `doGet` method is called, the servlet retrieves system properties, sets the content type of the response to plain text, and writes a response message containing the App Engine version, Java specification version. The response message is then sent back to the client as plain text.
 
+web.xml: Also known as the deployment descriptor, it's an XML configuration file for Java web applications. It contains information about the application's servlets, filters, listeners, context parameters, and other configurations. The web.xml file is used by the server to deploy and configure the application. The `<welcome-file-list>` specifies the default file to be served when a client requests a directory without specifying a file.
 
+appengine-web.xml: This file configures App Engine-specific settings  like application ID, version, and runtime. It helps manage resources and indicates if the app is thread-safe (`<threadsafe>` element). The `<runtime>` element sets the environment (e.g., Java 8), and the `<property>` element defines the logging configuration file location, such as `WEB-INF/logging.properties`.
 
+index.jsp: This file is a JavaServer Pages file that allows embedding Java code within HTML to create dynamic web pages. When a client requests the application's root URL without specifying a particular file, the server will look for a "welcome file" specified in web.xml, which is usually index.jsp.
 
 ## Step 2 : Develop a servlet that uses the datastore
 
 
 
-
+Here is the code of our DatastoreWrite servlet:
 
 ````java
 package ch.heigvd.cld.lab;
@@ -95,99 +99,29 @@ public class DatastoreWrite extends HttpServlet {
 
 ````
 
+This servlet listens for incoming HTTP GET requests at the "/datastorewrite" endpoint. When a GET request is received, the servlet does the following:
 
-
-````jsp
-<!DOCTYPE html>
-<%@ page contentType="text/html;charset=UTF-8" %>
-<html>
-<head>
-    <link href='//fonts.googleapis.com/css?family=Marmelad' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="resources/css/styles.css">
-    <link rel="shortcut icon" href="resources/img/cloud.ico" type="image/x-icon">
-    <link rel="icon" href="resources/img/cloud.ico" type="image/x-icon">
-
-    <title>HEIG-VD - Cloud computing</title>
-</head>
-<body>
-    <header>
-        <a href="https://heig-vd.ch" class="header-logo">
-            <img src="https://heig-vd.ch/images/heig-vd-logo.gif" alt="Logo HEIG VD" width="112" height="112">
-        </a>
-        <div>
-            Cloud computing - Labo 4
-        </div>
-    </header>
-    <div>
-        <h1>Welcome to our web application!</h1>
-    </div>
-    <h2>Add a new entity:</h2>
-    <form id="addEntityForm" method="get">
-        <label for="_kind">Kind:</label>
-        <input type="text" id="_kind" name="_kind" required>
-        <br>
-        <label for="Key">Key:</label>
-        <input type="text" id="Key" name="_key" required>
-        <br>
-        <label for="Value">Value:</label>
-        <input type="text" id="Value" name="_value" required>
-        <br>
-        <input type="submit" value="Add Entity" >
-        <br>
-    </form>
-    <div id="lastAddedEntity" class="last-added-entity"></div>
-
-    <footer>
-        <p class="left">Authors: Anthony David - Timothée Van Hove</p>
-        <p class="right">
-        <a href="https://github.com/DrC0okie/HEIG_CLD_Labo4.git">
-            <img src="resources/img/github-mark-white.svg" alt="Logo Github" width="24" height="24">
-            Check out our repo!
-        </a>
-    </footer>
-</body>
-<script src="${pageContext.request.contextPath}/resources/js/addEntity.js"></script>
-</html>
-
-````
+1. Retrieves the `_kind` and `_key` parameters from the request.
+2. Validates that the `_kind` parameter is present.
+3. Creates a new Entity instance with the specified kind and key.
+4. Iterates over all the other request parameters and adds them as properties to the Entity.
+5. Stores the Entity in Google Datastore.
+6. Constructs a JSON object containing the kind, key, and properties of the stored Entity.
+7. Sets the response content type to "application/json" and sends the JSON object back to the client.
 
 
 
-````js
-// Get references to the form and the lastAddedEntity div
-const addEntityForm = document.getElementById('addEntityForm');
-const lastAddedEntity = document.getElementById('lastAddedEntity');
+Note that for the sake of our tests with jmeter, we had to change the response `HttpServletResponse.SC_BAD_REQUEST` by `HttpServletResponse.SC_OK`. 
 
-// Add an event listener to submit the form
-addEntityForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Prevent the form from submitting normally
+### Going further
 
-    // Send the form data to the server using the fetch api
-    fetch('/datastorewrite?' + new URLSearchParams(new FormData(addEntityForm)), {
-        method: 'GET'
-    })
-        .then((response) => response.json()).then((data) => {
-            // Update the lastAddedEntity div with the returned data and show it
-            lastAddedEntity.innerHTML = "<h2>Last Added Entity:</h2>" +
-                "<p>Kind: " + data.kind + "</p>" +
-                "<p>Key: " + data.key + "</p>" +
-                "<ul>" + Object.entries(data.properties).map(
-                    ([property, value]) => "<li>" + property.replace(
-                        "_value", "Value") + ": " + value + "</li>").join('') + "</ul>";
+We wanted to make our web app a little more user friendly and more graphically appealing. So we decorated our main page (index.jsp), and added a form to send elements in the datastore directly in the web app. When an element is added in the datastore, we notify the user what is the last element that has been added using the fetch api. We probably wasted a lot of time doing this but it was fun.
 
-            lastAddedEntity.style.display = 'block';
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-});
-````
+![](figures/webApp.png)
 
+Link to our app: https://20230502t210108-dot-grr-vanhove.ew.r.appspot.com/
 
-
-
-
-Link of our app: https://20230502t210108-dot-grr-vanhove.ew.r.appspot.com/
+Check our code on [github](https://github.com/DrC0okie/HEIG_CLD_Labo4).
 
 ## Step 3 : Test the performance of datastore writes
 
