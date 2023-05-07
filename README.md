@@ -119,19 +119,69 @@ We wanted to make our web app a little more user friendly and more graphically a
 
 ![](figures/webApp.png)
 
-Link to our app: https://20230502t210108-dot-grr-vanhove.ew.r.appspot.com/
+Link to our app: https://20230502t213614-dot-grr-vanhove.ew.r.appspot.com/
 
 Check our code on [github](https://github.com/DrC0okie/HEIG_CLD_Labo4).
 
 ## Step 3 : Test the performance of datastore writes
 
+The following 2 test have been done with jmeter 5.5. For each test we sent 1500 requests to the app engine server, with a ramp-up period of 1 second. For the first test we sent the requests to the servlet without giving any parameters in the url, so no data has been written to the datastore. For the second test we sent the requests with the following parameters: `?_kind=test&_value=test`.
+
+The goal of those 2 tests is to observe weather the write to the datastore has an impact on the performance or not.
+
+## Tests without writing in the datastore
+
+### Jmeter data
+
+As we can see in the 2 charts below, after a certain amount of requests the server is not able to respond to them. We hit the threshold.
+
+![](figures/ResponseTimeGraph_withoutData.png)
+
+![](figures/GraphResult_WithoutData.png)
+
+### Google dashboard data
+
+In the graph below, we can see that the incoming traffic forms a triangle shape. This is because the incoming requests are display as througthput instead of just request count number.
+
+![](figures/Request_count_WithoutData.png)
+
+In the latency graph below, we can see that the maximum latency is approximately at 4'000 milliseconds. This is not expected because our jmeter graph shows that the maximum latency is 2'000ms. 
+
+![](figures/Latency_WithoutData.png)
+
+In the graph below we can see that the amount of instance created follows the increase in traffic, with a maximum of 9 created instances.
+
+![](figures/Instances_withoutData.png)
 
 
 
+## Test when writing in the datastore
+
+### Jmeter data
+
+In the jmeter side, we cannot see significant differences between the requests with and without writing data in the datastore. The only difference we can see is that the latency before hitting the requests threshold is a lot smoother than the test done before.
+
+![](figures/ResponseTimeGraph_withData.png)
+
+![](figures/GraphResult_WithData.png)
+
+### Google dashboard data
+
+![](figures/Request_count_WithData.png)
+
+For the second test, the response latencies are, again much higher on the Google side than in the jmeter side.
+
+![](figures/Latency_WithData.png)
+
+Regarding the instance count graph below, we can not see any major difference, compared to the first test graph, appart from the fact that we have 3 more instances than in the previous test.
+
+![](figures/Instances_withData.png)
 
 ## Conlusion
 
+On the google side, we can see that writing in the datastore increase lightly the response latency and the creation instance count when we write in the datastore. However, those differences are not significant. On the Jmeter side, we cannot see a significant change with or without writing in the datastore.
 
+In conclusion, and based on our data, we can affirm that the action of writing in the datastore does not really impact the performance of our web application.
 
 
 
