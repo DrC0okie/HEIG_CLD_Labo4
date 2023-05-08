@@ -125,9 +125,9 @@ Check our code on [github](https://github.com/DrC0okie/HEIG_CLD_Labo4).
 
 ## Step 3 : Test the performance of datastore writes
 
-The following 2 test have been done with jmeter 5.5. For each test we sent 1500 requests to the app engine server, with a ramp-up period of 1 second. For the first test we sent the requests to the servlet without giving any parameters in the url, so no data has been written to the datastore. For the second test we sent the requests with the following parameters: `?_kind=test&_value=test`.
+The following 2 test have been done with jmeter 5.5. For each test we sent 1500 requests to the app engine server, with a ramp-up period of 1 second. For the first test we sent the requests to the servlet without giving any parameters in the url, so no data has been written to the datastore. For the second test we sent the requests with the following parameters: `?_kind=test&_value=test`. We have waited the active instances to be at 0 before launching the second test for more consistency. The goal of those 2 tests is to observe weather the write to the datastore has an impact on the performance or not.
 
-The goal of those 2 tests is to observe weather the write to the datastore has an impact on the performance or not.
+We have conducted multiple series of tests, e.g. with 200 requests polling the server during 5 minutes (to have more consistent data), but unfortunately, those tests made our machines crash systematically. We decided to include only one series of tests on one specific machine and network to be more consistent.
 
 ## Tests without writing in the datastore
 
@@ -169,25 +169,17 @@ In the jmeter side, we cannot see significant differences between the requests w
 
 ![](figures/Request_count_WithData.png)
 
-For the second test, the response latencies are, again much higher on the Google side than in the jmeter side.
+For the second test, the response latencies are, again much higher on the Google side than in the jmeter side, which is odd. We can see that when writing in the datastore, the latencies are, overall,  higher compared to the first tests that we did.
 
 ![](figures/Latency_WithData.png)
 
-Regarding the instance count graph below, we can not see any major difference, compared to the first test graph, appart from the fact that we have 3 more instances than in the previous test.
+Regarding the instance count graph below, we can not see any major difference, compared to the first test graph, apart from the fact that we have 3 more instances than in the previous test.
 
 ![](figures/Instances_withData.png)
 
-## Conlusion
+## Conclusion
 
-On the google side, we can see that writing in the datastore increase lightly the response latency and the creation instance count when we write in the datastore. However, those differences are not significant. On the Jmeter side, we cannot see a significant change with or without writing in the datastore.
+The main limiting factor of this analysis is the lack of granularity and control in the Google Metrics Explorer. This first problem is the sample rate. When we are trying to conduct a burst test to evaluate the service capability like we did, we do not have enough metrics data to properly evaluate the test. The second problem is the lack of control over the graphical interface on the Metrics explorer. In fact, we cannot export a graph as image and cannot change the graphs fontsize and line width. This result in unreadable graphs in our report. A solution to this would be to download the CSV data and to plot it in Excel, but we did not have the time to do it. In the other hand, Jmeter allows a lot more control in the reports and graphs.
 
-In conclusion, and based on our data, we can affirm that the action of writing in the datastore does not really impact the performance of our web application.
-
-
-
-
-
-
-
-
+The second limiting factor is that we can not properly trust the latency metrics because we have very different results on the google side and on the jmeter side. We do not understand why the latency is twice as high in the Google Metrics Explorer. We have done a lot of different tests, on different machines and different networks, but we can not get enough details and consistency to draw a proper performance conclusion. What we can say is that *most of the time*, writing into the datastore induces more latency and more instances are created.
 
