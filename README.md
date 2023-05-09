@@ -129,9 +129,9 @@ The following 2 test have been done with jmeter 5.5. For each test we sent 1500 
 
 We have conducted multiple series of tests, e.g. with 200 requests polling the server during 5 minutes (to have more consistent data), but unfortunately, those tests made our machines crash systematically. We decided to include only one series of tests on one specific machine and network to be more consistent.
 
-## Tests without writing in the datastore
+## Burst tests
 
-### Jmeter data
+### Not writing in the datastore - jmeter data
 
 As we can see in the 2 charts below, after a certain amount of requests the server is not able to respond to them. We hit the threshold.
 
@@ -139,25 +139,19 @@ As we can see in the 2 charts below, after a certain amount of requests the serv
 
 ![](figures/GraphResult_WithoutData.png)
 
-### Google dashboard data
-
-In the graph below, we can see that the incoming traffic forms a triangle shape. This is because the incoming requests are display as througthput instead of just request count number.
-
-![](figures/Request_count_WithoutData.png)
-
-In the latency graph below, we can see that the maximum latency is approximately at 4'000 milliseconds. This is not expected because our jmeter graph shows that the maximum latency is 2'000ms. 
-
-![](figures/Latency_WithoutData.png)
-
-In the graph below we can see that the amount of instance created follows the increase in traffic, with a maximum of 9 created instances.
-
-![](figures/Instances_withoutData.png)
+### Not writing in the datastore - Google dashboard data
 
 
 
-## Test when writing in the datastore
+![](figures/Burst_InstancesVS_Latency_withoutData.png)
 
-### Jmeter data
+
+
+![](figures/Burst_InstancesVS_ReceivedBytes_withoutData.png)
+
+
+
+### Writing in the datastore - jmeter data
 
 In the jmeter side, we cannot see significant differences between the requests with and without writing data in the datastore. The only difference we can see is that the latency before hitting the requests threshold is a lot smoother than the test done before.
 
@@ -165,20 +159,60 @@ In the jmeter side, we cannot see significant differences between the requests w
 
 ![](figures/GraphResult_WithData.png)
 
-### Google dashboard data
+### Writing in the datastore - Google dashboard data
 
-![](figures/Request_count_WithData.png)
+![](figures/Burst_InstancesVS_Latency_withData.png)
 
-For the second test, the response latencies are, again much higher on the Google side than in the jmeter side, which is odd. We can see that when writing in the datastore, the latencies are, overall,  higher compared to the first tests that we did.
 
-![](figures/Latency_WithData.png)
 
-Regarding the instance count graph below, we can not see any major difference, compared to the first test graph, apart from the fact that we have 3 more instances than in the previous test.
+![](figures/Burst_InstancesVS_ReceivedBytes_withData.png)
 
-![](figures/Instances_withData.png)
 
 ## Conclusion
 
+## Constant load test
+
+Those 2 tests have been done with a constant load of 50 threads for 1000 loops with different users for each iteration. It is important to note that for those tests it is useless to show the jmeter results graph because with 50'000 requests the graph is unreadable. Instead wi will append an aggregate report as a table.
+
+### Not writing in the datastore - jmeter data
+
+As we can see in the graph and the table below, using a constant load with less users gives us much more consistent results because we do not hit the threshold where the requests time-out. Thus the average latency is much lower with an average of 58 ms.
+
+![](C:\Users\timot\Documents\HEIG\CLD\HEIG_CLD_Labo4\figures\ConstantLoadResponseTimeGraph_withoutData.png)
+
+| Samples | Average | Median | Min   | Max     | Error | Throughput  | Duration    |
+| ------- | ------- | ------ | ----- | ------- | ----- | ----------- | ----------- |
+| 50'000  | 58 ms   | 40 ms  | 27 ms | 4178 ms | 0%    | 768.2 req/s | 1 min 4 sec |
+
+### Not writing in the datastore - Google dashboard data
+
+
+
+![](figures/InstancesVS_Latency_withoutData.png)
+
+![](figures/InstancesVS_ReceivedBytes_withoutData.png)
+
+
+
+### Writing in the datastore - jmeter data
+
+
+
+![](figures/ConstantLoadResponseTimeGraph_withData.png)
+
+| Samples | Average | Median | Min   | Max     | Error | Throughput  | Duration    |
+| ------- | ------- | ------ | ----- | ------- | ----- | ----------- | ----------- |
+| 50'000  | 114 ms  | 70 ms  | 47 ms | 5538 ms | 0%    | 411.2 req/s | 2 min 1 sec |
+
+
+
+### Writing in the datastore - Google dashboard data
+
+![](figures/InstancesVS_Latency_withData.png)
+
+![](figures/InstancesVS_ReceivedBytes_withData.png)
+
+# Conclusion
 The main limiting factor of this analysis is the lack of granularity and control in the Google Metrics Explorer. This first problem is the sample rate. When we are trying to conduct a burst test to evaluate the service capability like we did, we do not have enough metrics data to properly evaluate the test. The second problem is the lack of control over the graphical interface on the Metrics explorer. In fact, we cannot export a graph as image and cannot change the graphs fontsize and line width. This result in unreadable graphs in our report. A solution to this would be to download the CSV data and to plot it in Excel, but we did not have the time to do it. In the other hand, Jmeter allows a lot more control in the reports and graphs.
 
 The second limiting factor is that we can not properly trust the latency metrics because we have very different results on the google side and on the jmeter side. We do not understand why the latency is twice as high in the Google Metrics Explorer. We have done a lot of different tests, on different machines and different networks, but we can not get enough details and consistency to draw a proper performance conclusion. What we can say is that *most of the time*, writing into the datastore induces more latency and more instances are created.
